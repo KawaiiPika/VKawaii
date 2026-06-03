@@ -1,0 +1,35 @@
+[package]
+name = "vkawaii"
+version = "0.1.0"
+edition = "2021"
+description = "3D VTubing software in Rust"
+repository = "https://github.com/KawaiiPika/VKawaii-Jules"
+license = "GPL-3.0-or-later"
+
+[[bin]]
+name = "vkawaii"
+path = "src/main.rs"
+
+
+
+[dependencies]
+blue_engine = "0.10.0"
+rapier3d = "0.32.0"
+gltf = "1.1.0"
+cpal = "0.17.3"
+nalgebra = "0.35.0"
+anyhow = "1.0"
+image = "0.25.10"
+blue_engine_utilities = { version = "0.10.0", features = ["egui"] }
+lazy_static = "1.4.0"
+bytemuck = "1.25.0"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.150"
+vrm-spec = "0.1.0"
+rayon = "1.12.0"
+egui-wgpu = "0.34.3"
+
+[workspace]
+
+
+

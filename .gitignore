@@ -1,0 +1,11 @@
+/target
+*.pdb
+VRM/
+scratch/
+rustup-init.exe
+test.rs
+test_egui.rs
+test_obj.rs
+*.orig
+
+Local/
