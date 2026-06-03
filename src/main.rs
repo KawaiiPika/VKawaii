@@ -1,3 +1,10 @@
+#![allow(unused_assignments)]
+#![allow(clippy::too_many_arguments)]
+#![allow(clippy::needless_range_loop)]
+#![allow(clippy::type_complexity)]
+#![allow(clippy::legacy_numeric_constants)]
+#![allow(clippy::manual_clamp)]
+
 pub mod core;
 pub mod models;
 pub mod physics;

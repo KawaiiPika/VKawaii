@@ -1,6 +1,5 @@
-use naga::{back::wgsl, front::spv, valid::{Capabilities, ValidationFlags, Validator}, Module, GlobalVariable, AddressSpace, TypeInner};
+use naga::{back::wgsl, front::spv, valid::{Capabilities, ValidationFlags, Validator}, Module, AddressSpace, TypeInner};
 use anyhow::{Result, Context};
-use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum BindingType {

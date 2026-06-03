@@ -1,0 +1,3 @@
+[submodule "vendor/dxil-spirv"]
+	path = vendor/dxil-spirv
+	url = https://github.com/HansKristian-Work/dxil-spirv.git
