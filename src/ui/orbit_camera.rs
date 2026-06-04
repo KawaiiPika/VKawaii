@@ -65,7 +65,7 @@ impl blue_engine::Signal for OrbitCamera {
 
         let mut input_active = false;
 
-        // Zoom (Scroll)
+        // We map scroll wheel input to exponential zoom to maintain smooth scaling at large distances
         let ui_wants_pointer = crate::ui::overlay::OVERLAY_STATE
             .lock()
             .unwrap()
@@ -73,13 +73,7 @@ impl blue_engine::Signal for OrbitCamera {
         if scroll_y != 0.0 && !ui_wants_pointer {
             // Scale zoom speed based on how close we are to the target
             let zoom_amt = scroll_y * self.zoom_speed * (self.target_radius * 0.1).max(0.1);
-            self.target_radius -= zoom_amt;
-            if self.target_radius < 0.1 {
-                self.target_radius = 0.1;
-            }
-            if self.target_radius > 50.0 {
-                self.target_radius = 50.0;
-            }
+            self.target_radius = (self.target_radius - zoom_amt).clamp(0.1, 50.0);
             input_active = true;
         }
 
@@ -104,20 +98,17 @@ impl blue_engine::Signal for OrbitCamera {
             self.target_theta += mouse_dx * self.rotation_speed;
             self.target_phi -= mouse_dy * self.rotation_speed;
 
-            // clamp phi to avoid flipping the camera
+            // Constrain pitch to prevent gimbal lock at the poles
             let epsilon = 0.01;
-            if self.target_phi < epsilon {
-                self.target_phi = epsilon;
-            }
-            if self.target_phi > std::f32::consts::PI - epsilon {
-                self.target_phi = std::f32::consts::PI - epsilon;
-            }
+            self.target_phi = self
+                .target_phi
+                .clamp(epsilon, std::f32::consts::PI - epsilon);
             input_active = true;
         }
 
         // Camera Pan
         if is_panning && (mouse_dx != 0.0 || mouse_dy != 0.0) {
-            // Calculate camera right and up vectors to pan relative to camera view
+            // We project the 2D mouse delta onto the 3D viewing plane to allow intuitive panning
             let forward = Vector3::new(
                 self.current_phi.sin() * self.current_theta.cos(),
                 self.current_phi.cos(),

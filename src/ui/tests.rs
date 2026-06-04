@@ -1,3 +1,4 @@
+#![allow(clippy::module_inception)]
 #[cfg(test)]
 mod tests {
     use crate::ui::overlay::{HullConfig, OverlayState};
@@ -5,11 +6,11 @@ mod tests {
     #[test]
     fn test_overlay_state_default() {
         let state = OverlayState::default();
-        assert_eq!(state.show_spring_bone_editor, true);
-        assert_eq!(state.show_material_editor, false);
-        assert_eq!(state.show_body_hulls, true);
-        assert_eq!(state.show_spring_bone_hulls, true);
-        assert_eq!(state.show_spring_colliders, true);
+        assert!(state.show_spring_bone_editor);
+        assert!(!state.show_material_editor);
+        assert!(state.show_body_hulls);
+        assert!(state.show_spring_bone_hulls);
+        assert!(state.show_spring_colliders);
         assert_eq!(state.global_gravity, -9.81);
     }
 

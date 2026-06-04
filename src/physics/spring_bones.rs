@@ -104,7 +104,7 @@ pub struct SpringBoneSystem {
     /// Body-mesh bone convex hulls (head, arms, hands…) used as collision surfaces for spring hair.
     /// Each entry is (node_idx, local-space SharedShape).
     pub body_hull_colliders: Vec<(usize, rapier3d::prelude::SharedShape)>,
-    pub body_hull_vis_meshes: Vec<(usize, (Vec<blue_engine::Vertex>, Vec<u16>))>,
+    pub body_hull_vis_meshes: Vec<(usize, BodyHullMesh)>,
 
     /// Visual meshes for VRM spring colliders (spheres/capsules)
     pub spring_collider_vis_meshes:
@@ -116,6 +116,8 @@ impl Default for SpringBoneSystem {
         Self::new()
     }
 }
+
+pub type BodyHullMesh = (Vec<blue_engine::Vertex>, Vec<u16>);
 
 impl SpringBoneSystem {
     pub fn new() -> Self {

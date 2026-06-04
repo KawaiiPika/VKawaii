@@ -25,11 +25,11 @@ lazy_static = "1.4.0"
 bytemuck = "1.25.0"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.150"
+zip = "2.2.0"
 vrm-spec = "0.1.0"
 rayon = "1.12.0"
 egui-wgpu = "0.34.3"
 naga = { version = "29.0.3", features = ["spv-in", "wgsl-out"] }
-zip = "8.6.0"
 
 [workspace]
 

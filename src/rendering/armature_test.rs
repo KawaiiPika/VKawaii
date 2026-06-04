@@ -256,8 +256,6 @@ impl Signal for ArmatureTest {
         }
         self.m_pressed = m_down;
 
-        let mut selected_key = None;
-
         // Handle 3D Mouse Picking
         if engine
             .simple_input
@@ -289,7 +287,7 @@ impl Signal for ArmatureTest {
                     let slice: &[f32; 16] = view_data.as_ref();
                     let view_proj_mat = nalgebra::Matrix4::from_column_slice(slice);
 
-                    let mut closest_depth = std::f32::MAX;
+                    let mut closest_depth = f32::MAX;
                     let mut closest_k = None;
 
                     let state = crate::ui::overlay::OVERLAY_STATE.lock().unwrap();
@@ -334,8 +332,8 @@ impl Signal for ArmatureTest {
                         {
                             let global = self.skinning_system.nodes[*node_idx].global_transform;
 
-                            let mut min_dist = std::f32::MAX;
-                            let mut min_depth = std::f32::MAX;
+                            let mut min_dist = f32::MAX;
+                            let mut min_depth = f32::MAX;
                             for v in orig_verts {
                                 let local_pos =
                                     Vector4::new(v.position[0], v.position[1], v.position[2], 1.0);
@@ -374,8 +372,8 @@ impl Signal for ArmatureTest {
                         {
                             let global = self.skinning_system.nodes[*node_idx].global_transform;
 
-                            let mut min_dist = std::f32::MAX;
-                            let mut min_depth = std::f32::MAX;
+                            let mut min_dist = f32::MAX;
+                            let mut min_depth = f32::MAX;
                             for v in orig_verts {
                                 let local_pos =
                                     Vector4::new(v.position[0], v.position[1], v.position[2], 1.0);
@@ -417,10 +415,10 @@ impl Signal for ArmatureTest {
             }
         }
 
-        {
+        let selected_key = {
             let state = crate::ui::overlay::OVERLAY_STATE.lock().unwrap();
-            selected_key = state.selected_hull_key.clone();
-        }
+            state.selected_hull_key.clone()
+        };
 
         let state = crate::ui::overlay::OVERLAY_STATE.lock().unwrap();
         let show_body_hulls = state.show_body_hulls;

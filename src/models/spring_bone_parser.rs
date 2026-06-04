@@ -172,15 +172,18 @@ pub fn parse_vrm0_spring_bones(
             if let Some(bones) = group.get("bones").and_then(|v| v.as_array()) {
                 for bone_val in bones {
                     if let Some(root_node_idx) = bone_val.as_u64().map(|v| v as usize) {
-                        add_spring_bone_recursive(
-                            root_node_idx,
-                            root_node_idx, // Use root_node_idx as a unique chain ID instead of VRM group_id
+                        let params = SpringBoneRecursiveParams {
                             stiffness,
                             gravity_power,
                             gravity_dir,
                             drag_force,
                             hit_radius,
-                            &active_colliders,
+                            colliders: &active_colliders,
+                        };
+                        add_spring_bone_recursive(
+                            root_node_idx,
+                            root_node_idx, // Use root_node_idx as a unique chain ID instead of VRM group_id
+                            &params,
                             nodes,
                             skins,
                             skinning_data,
@@ -193,15 +196,19 @@ pub fn parse_vrm0_spring_bones(
     }
 }
 
-fn add_spring_bone_recursive(
-    node_idx: usize,
-    group_id: usize,
+struct SpringBoneRecursiveParams<'a> {
     stiffness: f32,
     gravity_power: f32,
     gravity_dir: Vector3<f32>,
     drag_force: f32,
     hit_radius: f32,
-    colliders: &[usize],
+    colliders: &'a [usize],
+}
+
+fn add_spring_bone_recursive(
+    node_idx: usize,
+    group_id: usize,
+    params: &SpringBoneRecursiveParams,
     nodes: &[crate::rendering::skinning::Node],
     skins: &[crate::rendering::skinning::Skin],
     skinning_data: &[crate::models::vrm_loader::SkinningData],
@@ -272,7 +279,7 @@ fn add_spring_bone_recursive(
 
         let m3 = node.global_transform.fixed_view::<3, 3>(0, 0);
         let global_scale = m3.column(0).norm().max(0.0001);
-        let local_hit_radius = hit_radius / global_scale;
+        let local_hit_radius = params.hit_radius / global_scale;
 
         for data in skinning_data {
             let skin = &skins[data.skin_idx];
@@ -282,8 +289,8 @@ fn add_spring_bone_recursive(
 
                 for (i, joints) in data.joints.iter().enumerate() {
                     let mut weight = 0.0;
-                    for j in 0..4 {
-                        if joints[j] == j_idx {
+                    for (j, &joint) in joints.iter().enumerate().take(4) {
+                        if joint == j_idx {
                             weight += data.weights[i][j];
                         }
                     }
@@ -437,26 +444,21 @@ fn add_spring_bone_recursive(
         prev_tail: current_tail,
         initial_local_matrix,
         initial_local_tail,
-        hit_radius,
-        stiffness,
-        gravity_power,
-        gravity_dir,
-        drag_force,
+        hit_radius: params.hit_radius,
+        stiffness: params.stiffness,
+        gravity_power: params.gravity_power,
+        gravity_dir: params.gravity_dir,
+        drag_force: params.drag_force,
         bone_length,
         max_angle: std::f32::consts::PI / 4.0, // Default to 45 degree angular limit
-        colliders: colliders.to_vec(),
+        colliders: params.colliders.to_vec(),
     });
 
     for &child_idx in &node.children {
         add_spring_bone_recursive(
             child_idx,
             group_id,
-            stiffness,
-            gravity_power,
-            gravity_dir,
-            drag_force,
-            hit_radius,
-            colliders,
+            params,
             nodes,
             skins,
             skinning_data,
@@ -517,8 +519,8 @@ pub fn build_body_hull_colliders(
 
                 for (i, joints) in data.joints.iter().enumerate() {
                     let mut weight = 0.0f32;
-                    for j in 0..4 {
-                        if joints[j] == j_idx {
+                    for (j, &joint) in joints.iter().enumerate().take(4) {
+                        if joint == j_idx {
                             weight += data.weights[i][j];
                         }
                     }

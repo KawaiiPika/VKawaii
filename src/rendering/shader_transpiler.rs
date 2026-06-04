@@ -1,5 +1,10 @@
-use naga::{back::wgsl, front::spv, valid::{Capabilities, ValidationFlags, Validator}, Module, AddressSpace, TypeInner};
-use anyhow::{Result, Context};
+use anyhow::{Context, Result};
+use naga::{
+    back::wgsl,
+    front::spv,
+    valid::{Capabilities, ValidationFlags, Validator},
+    AddressSpace, Module, TypeInner,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum BindingType {
@@ -30,9 +35,9 @@ pub fn transpile_spirv_to_wgsl(spirv_bytes: &[u8]) -> Result<(String, ShaderRefl
         strict_capabilities: false,
         block_ctx_dump_prefix: None,
     };
-    
-    let module = spv::parse_u8_slice(spirv_bytes, &options)
-        .context("Failed to parse SPIR-V module")?;
+
+    let module =
+        spv::parse_u8_slice(spirv_bytes, &options).context("Failed to parse SPIR-V module")?;
 
     let reflection = reflect_shader_bindings(&module);
 
@@ -60,7 +65,7 @@ pub fn reflect_shader_bindings(module: &Module) -> ShaderReflection {
                     let type_data = &module.types[global_var.ty];
                     let size = type_data.inner.size(module.to_ctx());
                     BindingType::UniformBuffer { size }
-                },
+                }
                 AddressSpace::Handle => {
                     let type_data = &module.types[global_var.ty];
                     match type_data.inner {
@@ -68,7 +73,7 @@ pub fn reflect_shader_bindings(module: &Module) -> ShaderReflection {
                         TypeInner::Sampler { .. } => BindingType::Sampler,
                         _ => BindingType::Other,
                     }
-                },
+                }
                 _ => BindingType::Other,
             };
 
@@ -91,6 +96,9 @@ mod tests {
     #[test]
     fn test_transpile_empty_spirv() {
         let result = transpile_spirv_to_wgsl(&[]);
-        assert!(result.is_err(), "Empty SPIR-V should return a parsing error");
+        assert!(
+            result.is_err(),
+            "Empty SPIR-V should return a parsing error"
+        );
     }
 }

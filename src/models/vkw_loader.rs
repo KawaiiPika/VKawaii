@@ -18,39 +18,50 @@ pub struct VkwModel {
 }
 
 impl VkwModel {
-    /// Loads a `.vkw` file (which is a ZIP archive), parses its `manifest.json`, 
+    /// Loads a `.vkw` file (which is a ZIP archive), parses its `manifest.json`,
     /// and extracts the inner `model.glb` and shaders.
     pub fn load<P: AsRef<Path>>(path: P) -> Result<Self> {
         let file = File::open(path).context("Failed to open .vkw file")?;
-        let mut archive = zip::ZipArchive::new(file).context("Failed to read .vkw as ZIP archive")?;
+        Self::load_from_reader(file)
+    }
 
-        // 1. Read manifest.json
+    pub fn load_from_reader<R: std::io::Read + std::io::Seek>(reader: R) -> Result<Self> {
+        let mut archive =
+            zip::ZipArchive::new(reader).context("Failed to read .vkw as ZIP archive")?;
+
+        // The manifest contains critical metadata like format versions and layout types.
+        // It must be parsed first to validate the archive before allocating heavy mesh data.
         let manifest: VkwManifest = {
-            let mut manifest_file = archive.by_name("manifest.json")
+            let mut manifest_file = archive
+                .by_name("manifest.json")
                 .context("Missing manifest.json in .vkw archive")?;
-            
+
             let mut manifest_str = String::new();
             manifest_file.read_to_string(&mut manifest_str)?;
-            serde_json::from_str(&manifest_str)
-                .context("Failed to parse manifest.json")?
+            serde_json::from_str(&manifest_str).context("Failed to parse manifest.json")?
         };
 
-        println!("[VKW Loader] Successfully parsed manifest for: {}", manifest.name);
+        println!(
+            "[VKW Loader] Successfully parsed manifest for: {}",
+            manifest.name
+        );
 
-        // 2. Read model.glb
+        // The raw glTF binary contains all the geometry and basic PBR materials.
+        // We load it into a contiguous byte buffer so the `gltf` crate can process it lazily.
         let glb_bytes = {
-            let mut glb_file = archive.by_name("model.glb")
+            let mut glb_file = archive
+                .by_name("model.glb")
                 .context("Missing model.glb in .vkw archive")?;
-            
+
             let mut glb_bytes = Vec::new();
             glb_file.read_to_end(&mut glb_bytes)?;
             glb_bytes
         };
 
-        println!("[VKW Loader] Extracted model.glb ({} bytes)", glb_bytes.len());
-
-        // 3. (Optional) In the future, we will extract .dxbc files from a "shaders/" directory 
-        // inside the zip, and pass them to our dxbc_parser here!
+        println!(
+            "[VKW Loader] Extracted model.glb ({} bytes)",
+            glb_bytes.len()
+        );
 
         Ok(Self {
             manifest,
