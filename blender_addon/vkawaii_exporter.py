@@ -50,15 +50,68 @@ class VKawaiiExportAll(bpy.types.Operator):
         # We need to manually capture spring bone configurations from the active Blender armature 
         # so the physics engine can reconstruct the node graph at runtime.
         spring_bones = []
+        constraints = []
         for obj in bpy.context.scene.objects:
             if obj.type == 'ARMATURE':
-                for bone in obj.pose.bones:
-                    if bone.bone.get("vkawaii_spring"):
+                for pb in obj.pose.bones:
+                    if pb.bone.get("vkawaii_spring"):
                         spring_bones.append({
-                            "name": bone.name,
-                            "stiffness": bone.bone.get("vkawaii_stiffness", 1.0),
-                            "radius": bone.bone.get("vkawaii_radius", 0.05)
+                            "name": pb.name,
+                            "stiffness": pb.bone.get("vkawaii_stiffness", 1.0),
+                            "radius": pb.bone.get("vkawaii_radius", 0.05)
                         })
+
+                    for c in pb.constraints:
+                        if c.type in {'COPY_ROTATION', 'LIMIT_ROTATION', 'DAMPED_TRACK', 'IK'}:
+                            c_data = {
+                                "bone": pb.name,
+                                "type": c.type,
+                                "influence": c.influence
+                            }
+                            if hasattr(c, "target") and c.target:
+                                c_data["target"] = c.target.name
+                            if hasattr(c, "subtarget") and c.subtarget:
+                                c_data["subtarget"] = c.subtarget
+                            constraints.append(c_data)
+
+        # Find shape keys driven by armature bone rotations.
+        # This allows for automated animations like eye blinking or mouth movement
+        # based on bone poses.
+        blendshape_drivers = []
+        for obj in bpy.context.scene.objects:
+            if obj.type == 'MESH' and obj.data.shape_keys:
+                if obj.data.shape_keys.animation_data and obj.data.shape_keys.animation_data.drivers:
+                    for driver in obj.data.shape_keys.animation_data.drivers:
+                        if driver.data_path.startswith('key_blocks["') and driver.data_path.endswith('"].value'):
+                            shape_key_name = driver.data_path.split('"')[1]
+
+                            # Only handle simple drivers with one variable and a linear expression
+                            if len(driver.driver.variables) == 1:
+                                var = driver.driver.variables[0]
+                                if var.type == 'TRANSFORMS' and var.targets[0].id and var.targets[0].id.type == 'ARMATURE':
+                                    target = var.targets[0]
+                                    if target.bone_target and "ROT" in target.transform_type:
+                                        expr = driver.driver.expression.replace(" ", "")
+                                        coefficient = 1.0
+
+                                        # Simple linear mapping parsing: 'var * 2.0', '2.0 * var', or just 'var'
+                                        if expr == var.name:
+                                            coefficient = 1.0
+                                        elif expr.startswith(var.name + "*"):
+                                            try: coefficient = float(expr.split("*")[1])
+                                            except: continue
+                                        elif expr.endswith("*" + var.name):
+                                            try: coefficient = float(expr.split("*")[0])
+                                            except: continue
+                                        else:
+                                            continue
+
+                                        blendshape_drivers.append({
+                                            "shape_key": shape_key_name,
+                                            "bone": target.bone_target,
+                                            "axis": target.transform_type,
+                                            "coefficient": coefficient
+                                        })
 
         # The manifest acts as the source of truth for the engine's asset parser,
         # ensuring the .glb and physics data are version-compatible.
@@ -71,6 +124,12 @@ class VKawaiiExportAll(bpy.types.Operator):
             json.dump({
                 "version": "1.0",
                 "type": "avatar",
+                "name": vkw_filename,
+                "avatar_config": {
+                    "constraints": constraints,
+                    "spring_bones": spring_bones,
+                    "blendshape_drivers": blendshape_drivers
+                }
                 "spring_bones": spring_bones
             }, f, indent=4)
 

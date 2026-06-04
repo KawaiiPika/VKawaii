@@ -5,10 +5,48 @@ use std::io::Read;
 use std::path::Path;
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct SpringBoneConfig {
+    pub name: String,
+    pub stiffness: f32,
+    pub radius: f32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ConstraintConfig {
+    pub bone: String,
+    pub r#type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub target: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subtarget: Option<String>,
+    pub influence: f32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BlendshapeDriver {
+    pub shape_key: String,
+    pub bone: String,
+    pub axis: String,
+    pub coefficient: f32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AvatarConfig {
+    #[serde(default)]
+    pub constraints: Vec<ConstraintConfig>,
+    #[serde(default)]
+    pub spring_bones: Vec<SpringBoneConfig>,
+    #[serde(default)]
+    pub blendshape_drivers: Vec<BlendshapeDriver>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct VkwManifest {
     pub version: String,
     pub r#type: String, // "avatar", "prop", etc.
     pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub avatar_config: Option<AvatarConfig>,
     // Add more fields as we figure them out!
 }
 
