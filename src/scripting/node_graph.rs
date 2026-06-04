@@ -1,14 +1,14 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-/// Represents a pin on a node.
+/// Showing a pin on a Node.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Pin {
     pub id: Uuid,
     pub name: String,
 }
 
-/// Represents a node in the graph.
+/// Throwing a Node into the Graph.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Node {
     pub id: Uuid,
@@ -18,7 +18,7 @@ pub struct Node {
     pub position: [f32; 2],
 }
 
-/// Represents a connection between two pins.
+/// Linking up two Pins.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Connection {
     pub id: Uuid,
@@ -26,7 +26,7 @@ pub struct Connection {
     pub to_pin: Uuid,
 }
 
-/// Represents the entire node graph.
+/// Laying out the whole Node graph.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct NodeGraph {
     pub nodes: Vec<Node>,

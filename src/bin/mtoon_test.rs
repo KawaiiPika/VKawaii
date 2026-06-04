@@ -18,7 +18,7 @@ fn main() {
                         if let Some(name) = mat.get("name") {
                             println!("  Material {}: {}", i, name);
 
-                            // print shade color and texture if it exists
+                            // Printing Shade color and Texture if it has it
                             if let Some(float_props) = mat.get("floatProperties") {
                                 if let Some(shade_shift) = float_props.get("_ShadeShift") {
                                     println!("    ShadeShift: {:?}", shade_shift);

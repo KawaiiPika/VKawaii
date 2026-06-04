@@ -37,10 +37,10 @@ mod tests {
     #[test]
     fn test_hotkey_manager_init() {
         let (tx, _rx) = mpsc::channel();
-        // This might fail in some CI environments if it can't access the windowing system
-        // but let's try.
+        // This might Fail in some CI Environments if it can't Access the windowing System
+        // But Trying anyway.
         let result = HotkeyManager::new(tx);
-        // We just check if it returns, success or failure depends on environment
+        // Checking if the Function returns, Success or Failure Depends on the Environment
         println!("HotkeyManager init result: {:?}", result.is_ok());
     }
 }

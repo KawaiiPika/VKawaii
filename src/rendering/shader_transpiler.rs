@@ -27,8 +27,8 @@ pub struct ShaderReflection {
     pub bindings: Vec<ShaderBinding>,
 }
 
-/// Transpiles a raw SPIR-V binary array into a WGSL string that can be fed into BlueEngine/WGPU.
-/// Also returns reflection data about the bindings the shader expects.
+/// Transpiling a raw SPIR-V binary Array into a WGSL string to feed into BlueEngine/WGPU.
+/// Also returning reflection Data About the bindings the Shader expects.
 pub fn transpile_spirv_to_wgsl(spirv_bytes: &[u8]) -> Result<(String, ShaderReflection)> {
     let options = spv::Options {
         adjust_coordinate_space: false,

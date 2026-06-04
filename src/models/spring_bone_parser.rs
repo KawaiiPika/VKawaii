@@ -61,7 +61,7 @@ pub fn parse_vrm0_spring_bones(
         None => return,
     };
 
-    // In VRM 0.0, colliderGroups is an array of objects: { node, colliders: [ { offset: {x,y,z}, radius } ] }
+    // In VRM 0.0, Collidergroups is an array of objects: { node, colliders: [ { offset: {x,y,z}, radius } ] }
     let mut collider_group_indices = Vec::new(); // maps group_idx -> array of collider indices in system
 
     if let Some(c_groups) = secondary.get("colliderGroups").and_then(|v| v.as_array()) {
@@ -92,7 +92,7 @@ pub fn parse_vrm0_spring_bones(
                             node_idx,
                             offset: Vector3::new(offset_vec.x, offset_vec.y, offset_vec.z),
                             radius,
-                            tail: None, // VRM 0.0 does not specify capsule colliders out of the box unless through an extension, so we just do spheres for now
+                            tail: None, // VRM 0.0 doesn't specify capsule Colliders by Default unless through an Extension, so sticking to Spheres for now
                         });
                         group_indices.push(idx);
 
@@ -220,8 +220,8 @@ fn add_spring_bone_recursive(
         let child = &nodes[node.children[0]];
         child.local_transform.column(3).xyz()
     } else {
-        // Pseudo tail: 1mm in the direction of the bone's local -Y
-        Vector3::new(0.0, -0.001, 0.0) // VRM is +Y up, bones point down? Or +Y? We will see.
+        // Pseudo tail: 1mm in the Direction of the bone's local -Y
+        Vector3::new(0.0, -0.001, 0.0) // VRM is +Y up, bones point Down? Or +Y? Wait and See.
     };
 
     let initial_local_matrix = node.local_transform;
@@ -235,7 +235,7 @@ fn add_spring_bone_recursive(
         .position(|n| n.children.contains(&node_idx))
         .unwrap_or(node_idx);
 
-    // Exclude by default for busts/skirts, but let the user toggle it
+    // Excluding by Default for busts/skirts, but leaving it toggleable
     let default_exclude = if let Some(ref name) = node.name {
         let n = name.to_lowercase();
         n.contains("bust")
@@ -268,7 +268,7 @@ fn add_spring_bone_recursive(
         (!enabled, config)
     };
 
-    // Use a Capsule for the bone physics hull instead of generating a massive blob from all vertices
+    // Using a Capsule for the bone physics Hull instead of Generating a massive blob from all vertices
     if !exclude_from_mesh_collision {
         let mut hull_points = Vec::new();
 
@@ -304,7 +304,7 @@ fn add_spring_bone_recursive(
                         pt.y *= hull_config.y_squash;
                         pt.z *= hull_config.z_squash;
 
-                        // Strict distance filter to prevent large overlapping blobs
+                        // Strict Distance filter to prevent large overlapping blobs
                         let t = if ab_len_sq > 0.000001 {
                             ((pt - p_start).dot(ab) / ab_len_sq).clamp(0.0, 1.0)
                         } else {
@@ -317,11 +317,11 @@ fn add_spring_bone_recursive(
 
                         let dist = pt.distance(closest);
 
-                        // Exclude points that project near the bone root (t < 0.30) to prevent
-                        // the hull base from digging into the scalp/head and causing the
-                        // hair to get pushed straight out.
-                        // Use a slightly expanded radius (local_hit_radius + 0.005 / scale) to close
-                        // inter-bone gaps, but bounded to avoid huge blobs on small hairs.
+                        // Tossing out Points that project near the bone Root (t < 0.30) to Stop
+                        // The hull base From digging into the scalp/head and Pushing the
+                        // Hair straight out.
+                        // Going with a Slightly expanded radius (local_hit_radius + 0.005 / scale) to Close
+                        // Inter-bone gaps, but Bounded to dodge huge blobs on Small hairs.
                         if dist
                             <= (local_hit_radius + 0.005 / global_scale).min(0.02 / global_scale)
                             && t > 0.30
@@ -333,8 +333,8 @@ fn add_spring_bone_recursive(
             }
         }
 
-        // If we didn't find enough points from skinning, generate synthetic points along the bone
-        // so it still gets a convex hull that respects our squash/shrink UI settings!
+        // If not enough Points are found from skinning, Generate synthetic points along the bone
+        // So it still gets a convex hull That respects the squash/shrink UI settings
         if hull_points.len() < 4 {
             let cap_end = if ab_len_sq > 0.000001 {
                 p_end
@@ -346,7 +346,7 @@ fn add_spring_bone_recursive(
             } else {
                 0.003 / global_scale
             };
-            // Use a very small radius (max 5mm) to prevent massive blocky geometry at the ends of hairs.
+            // Going with a tiny radius (max 5mm) to Stop massive blocky Geometry at the ends of Hairs.
             let radius = local_hit_radius.min(0.005 / global_scale).max(fallback_r);
             let dir = if ab_len_sq > 0.000001 {
                 ab.normalize()
@@ -467,32 +467,26 @@ fn add_spring_bone_recursive(
     }
 }
 
-/// Builds convex hull colliders for the non-spring body bones (head, neck, chest, arms, hands, etc.)
-/// These are stored in `system.body_hull_colliders` and used in Pass 1.5 so that spring-bone hair
-/// collides against the actual body mesh geometry, not just the VRM sphere/capsule metadata.
+/// Building convex hull Colliders for the body bones (head, neck, chest, arms, hands, etc.)
+/// Storing these in `system.body_hull_colliders` and using them in Pass 1.5 so the spring-bone Hair
+/// Clashes with the actual body Mesh geometry instead of just the VRM metadata.
 pub fn build_body_hull_colliders(
     nodes: &[crate::rendering::skinning::Node],
     skins: &[crate::rendering::skinning::Skin],
     skinning_data: &[crate::models::vrm_loader::SkinningData],
     system: &mut SpringBoneSystem,
 ) {
-    // Bone names we want to generate body hulls for.
-    // These are the bones whose mesh geometry the spring-bone hair can clip through.
+    // Bone names to Generate body Hulls for.
+    // These are the Bones the Hair tends to Clip through.
     let target_name_fragments: &[&str] = &[
-        "J_Bip_C_Head",
-        "J_Bip_C_Neck",
-        "J_Bip_C_UpperChest",
-        "J_Bip_C_Chest",
-        "J_Bip_L_Shoulder",
-        "J_Bip_R_Shoulder",
-        "J_Bip_L_UpperArm",
-        "J_Bip_R_UpperArm",
-        "J_Bip_L_LowerArm",
-        "J_Bip_R_LowerArm",
-        "J_Bip_L_Hand",
-        "J_Bip_R_Hand",
-        "Hairs",
-        "Hair001",
+        "head",
+        "neck",
+        "chest",
+        "spine",
+        "shoulder",
+        "arm", // catches upperarm, lowerarm, forearm
+        "hand",
+        "hair",
     ];
 
     for (node_idx, node) in nodes.iter().enumerate() {
@@ -500,16 +494,18 @@ pub fn build_body_hull_colliders(
             Some(n) => n.as_str(),
             None => continue,
         };
+        
+        let name_lower = name.to_lowercase();
 
         if !target_name_fragments
             .iter()
-            .any(|&frag| name.contains(frag))
+            .any(|&frag| name_lower.contains(frag))
         {
             continue;
         }
 
         let mut hull_points: Vec<blue_engine::glam::Vec3> = Vec::new();
-        let is_head = name.contains("J_Bip_C_Head");
+        let is_head = name_lower.contains("head");
 
         for data in skinning_data {
             let skin = &skins[data.skin_idx];
@@ -536,8 +532,8 @@ pub fn build_body_hull_colliders(
             }
         }
 
-        // For the head bone we collect 425k+ points — uniformly subsample to 2000 so the
-        // convex hull covers the FULL head shape (face + scalp + top) without crashing.
+        // For the head bone there are 425k+ points - uniformly subsample to 2000 so the
+        // Convex hull covers the FULL head shape (face + scalp + top) without crashing.
         if is_head && hull_points.len() > 2000 {
             let stride = hull_points.len() / 2000;
             hull_points = hull_points.into_iter().step_by(stride.max(1)).collect();
@@ -563,8 +559,8 @@ pub fn build_body_hull_colliders(
             }
         }
 
-        // Shrink hull points toward their centroid so the collision surface sits
-        // slightly inside the mesh, giving hair room to rest on top without being pushed out.
+        // Shrinking hull points Toward their centroid so the collision Surface sits
+        // Slightly inside the Mesh, leaving Hair room to Rest on top Without being pushed out.
         let centroid = hull_points
             .iter()
             .fold(blue_engine::glam::Vec3::ZERO, |a, &b| a + b)
@@ -587,8 +583,8 @@ pub fn build_body_hull_colliders(
             continue;
         }
 
-        // Special case: the head bone influences enormous numbers of vertices.
-        // We sampled up to 2000 points and shrank them — now build a normal convex hull from that.
+        // Special case: the head bone influences Enormous numbers of vertices.
+        // Sampled up to 2000 points and shrank them — now Build a Normal Convex hull from that.
         match rapier3d::prelude::SharedShape::convex_hull(&hull_points) {
             Some(shape) => {
                 println!(

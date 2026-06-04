@@ -47,8 +47,8 @@ class VKawaiiExportAll(bpy.types.Operator):
     bl_label = "Export to VKawaii"
 
     def execute(self, context):
-        # We need to manually capture spring bone configurations from the active Blender armature 
-        # so the physics engine can reconstruct the node graph at runtime.
+        # Grabbing the Spring bones from the Blender armature by Hand
+        # So the physics Engine can Rebuild the node graph later.
         spring_bones = []
         constraints = []
         for obj in bpy.context.scene.objects:
@@ -74,9 +74,9 @@ class VKawaiiExportAll(bpy.types.Operator):
                                 c_data["subtarget"] = c.subtarget
                             constraints.append(c_data)
 
-        # Find shape keys driven by armature bone rotations.
-        # This allows for automated animations like eye blinking or mouth movement
-        # based on bone poses.
+        # Look for Shape Keys that are Driven by Bone rotations.
+        # This makes stuff like eye Blinking or mouth Movement happen automatically
+        # Based on how the Bones are posed.
         blendshape_drivers = []
         for obj in bpy.context.scene.objects:
             if obj.type == 'MESH' and obj.data.shape_keys:
@@ -85,7 +85,7 @@ class VKawaiiExportAll(bpy.types.Operator):
                         if driver.data_path.startswith('key_blocks["') and driver.data_path.endswith('"].value'):
                             shape_key_name = driver.data_path.split('"')[1]
 
-                            # Only handle simple drivers with one variable and a linear expression
+                            # Only handle Simple Drivers with one Variable and a linear Expression
                             if len(driver.driver.variables) == 1:
                                 var = driver.driver.variables[0]
                                 if var.type == 'TRANSFORMS' and var.targets[0].id and var.targets[0].id.type == 'ARMATURE':
@@ -94,7 +94,7 @@ class VKawaiiExportAll(bpy.types.Operator):
                                         expr = driver.driver.expression.replace(" ", "")
                                         coefficient = 1.0
 
-                                        # Simple linear mapping parsing: 'var * 2.0', '2.0 * var', or just 'var'
+                                        # Simple linear Mapping parsing: 'var * 2.0', '2.0 * var', or just 'var'
                                         if expr == var.name:
                                             coefficient = 1.0
                                         elif expr.startswith(var.name + "*"):
@@ -113,8 +113,8 @@ class VKawaiiExportAll(bpy.types.Operator):
                                             "coefficient": coefficient
                                         })
 
-        # The manifest acts as the source of truth for the engine's asset parser,
-        # ensuring the .glb and physics data are version-compatible.
+        # The Manifest makes sure the engine knows what to do with the assets,
+        # Ensuring the .glb and Physics Data match up.
         temp_dir = bpy.path.abspath("//")
         if not temp_dir:
             temp_dir = bpy.app.tempdir
@@ -133,12 +133,12 @@ class VKawaiiExportAll(bpy.types.Operator):
                 "spring_bones": spring_bones
             }, f, indent=4)
 
-        # We rely on Blender's native GLB exporter because it automatically bakes standard PBR nodes
-        # into standard glTF materials, which our WGPU renderer natively supports.
+        # Just using Blender's built-in GLB exporter Since it handles baking PBR nodes
+        # Into standard glTF materials that the WGPU renderer can Understand.
         gltf_path = os.path.join(temp_dir, "model.glb")
         bpy.ops.export_scene.gltf(filepath=gltf_path, export_format='GLB')
 
-        # The .vkw format encapsulates all avatar data into a single file to prevent missing asset errors.
+        # The .vkw format Packs all the avatar Data into one File so nothing gets lost.
         import zipfile
         vkw_filename = bpy.path.display_name_from_filepath(bpy.data.filepath)
         if not vkw_filename:
@@ -149,7 +149,7 @@ class VKawaiiExportAll(bpy.types.Operator):
             zipf.write(json_path, "manifest.json")
             zipf.write(gltf_path, "model.glb")
             
-        # We delete the intermediate files to avoid polluting the user's project directory.
+        # Cleaning up the Temp files so they don't clutter the Project folder.
         if os.path.exists(json_path):
             os.remove(json_path)
         if os.path.exists(gltf_path):

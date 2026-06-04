@@ -96,17 +96,17 @@ pub struct SpringBoneSystem {
     pub enable_self_collision: bool,
     pub self_collision_iterations: usize,
 
-    // We will use Rapier purely for NarrowPhase Collision Shapes!
-    /// Hair bone local-space convex hulls (keyed by node_idx)
+    // Using Rapier purely for NarrowPhase collision Shapes
+    /// Hair bone local-space convex Hulls (keyed by node_idx)
     pub hull_colliders: std::collections::HashMap<usize, rapier3d::prelude::SharedShape>,
     pub hull_vis_meshes: std::collections::HashMap<usize, (Vec<blue_engine::Vertex>, Vec<u16>)>,
 
-    /// Body-mesh bone convex hulls (head, arms, hands…) used as collision surfaces for spring hair.
-    /// Each entry is (node_idx, local-space SharedShape).
+    /// Body-mesh Bone convex hulls (head, arms, hands…) acting as Collision surfaces for spring Hair.
+    /// Holding (node_idx, local-space SharedShape) in Each entry.
     pub body_hull_colliders: Vec<(usize, rapier3d::prelude::SharedShape)>,
     pub body_hull_vis_meshes: Vec<(usize, BodyHullMesh)>,
 
-    /// Visual meshes for VRM spring colliders (spheres/capsules)
+    /// Visual meshes for VRM spring Colliders (spheres/capsules)
     pub spring_collider_vis_meshes:
         std::collections::HashMap<usize, (Vec<blue_engine::Vertex>, Vec<u16>)>,
 }
@@ -190,7 +190,7 @@ impl SpringBoneSystem {
             let tail_dir = (next_tail - bone_origin).normalize();
             next_tail = bone_origin + tail_dir * particle.bone_length;
 
-            // Update particle state (temporarily store next_tail in current_tail for self-collision pass)
+            // Updating particle State (temporarily storing next_tail in current_tail for the self-collision Pass)
             particle.prev_tail = particle.current_tail;
             particle.current_tail = next_tail;
         }
@@ -273,7 +273,7 @@ impl SpringBoneSystem {
                         rapier3d::parry::query::contact(&pose1, &*shape1, &pose2, &*shape2, 0.001)
                     {
                         if contact.dist < 0.0 {
-                            // normal1 points outwards from shape1. We move shape1 away from shape2 by moving in the -normal1 direction
+                            // Normal1 points Outwards from shape1. Moving shape1 away from shape2 by heading in the -normal1 Direction
                             let push = contact.normal1 * -contact.dist;
 
                             let pt1 =
@@ -289,7 +289,7 @@ impl SpringBoneSystem {
                     }
                 }
 
-                // Also check against body mesh bone hulls (head, hands, arms...)
+                // Checking against body Mesh bone hulls (head, hands, arms...) too
                 for (body_node_idx, body_shape) in &self.body_hull_colliders {
                     let body_world = nodes[*body_node_idx].global_transform;
                     let body_pos = body_world.column(3).xyz();
@@ -336,9 +336,9 @@ impl SpringBoneSystem {
             }
         }
         // Pass 2: Self-Collision (PBD)
-        // Self-collision is enabled globally, but we skip intra-chain collisions.
+        // Self-collision is turned on Globally, but skipping intra-chain Collisions.
         if true {
-            let soft_factor = 0.5f32; // We can use a stronger soft factor because this method is perfectly stable
+            let soft_factor = 0.5f32; // A stronger Soft factor works well Since this Method is perfectly stable
 
             for _ in 0..self.self_collision_iterations {
                 for i in 0..self.particles.len() {
@@ -355,7 +355,7 @@ impl SpringBoneSystem {
                             continue;
                         }
 
-                        // ONLY collide with other chains. Do NOT collide with our own chain.
+                        // Only colliding with Other chains. Skipping collisions with its the Own chain.
                         if group_id1 == group_id2 {
                             continue;
                         }
@@ -393,7 +393,7 @@ impl SpringBoneSystem {
 
             if angle > particle.max_angle {
                 if let Some(rot_axis) = initial_tail_dir.cross(&tail_dir).try_normalize(0.000001) {
-                    // Create a quaternion that rotates exactly `max_angle` from `initial_tail_dir`
+                    // Making a quaternion that rotates exactly `max_angle` from `initial_tail_dir`
                     let clamped_rot = UnitQuaternion::from_axis_angle(
                         &nalgebra::Unit::new_unchecked(rot_axis),
                         particle.max_angle,
@@ -401,13 +401,13 @@ impl SpringBoneSystem {
 
                     let target_clamped_dir = clamped_rot * initial_tail_dir;
 
-                    // Smoothly interpolate towards the boundary to act as a soft constraint
+                    // Smoothly interpolating towards the Boundary to act as a Soft constraint
                     let blend_factor = 0.15; // 15% pull-back to boundary per frame (gentle soft constraint)
                     tail_dir = (tail_dir * (1.0 - blend_factor)
                         + target_clamped_dir * blend_factor)
                         .normalize();
                 } else {
-                    // Fallback if exactly 180 degrees reversed
+                    // Falling back if exactly 180 Degrees reversed
                     tail_dir = initial_tail_dir;
                 }
             }

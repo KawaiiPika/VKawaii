@@ -24,7 +24,7 @@ impl VKawaiiEngine {
 
         let action_executor = ActionExecutor::new(NodeGraph::default());
 
-        // Register a sample hotkey (e.g., F1)
+        // Registering a Sample hotkey (like F1)
         use global_hotkey::hotkey::{Code, HotKey, Modifiers};
         let hotkey = HotKey::new(Some(Modifiers::CONTROL), Code::KeyA);
         let _ = hotkey_manager.register_hotkey(hotkey);
@@ -39,10 +39,10 @@ impl VKawaiiEngine {
 
     pub fn run(mut self) -> anyhow::Result<()> {
         self.engine.update_loop(move |_engine| {
-            // Poll hotkeys
+            // Checking the Hotkeys
             self.hotkey_manager.poll();
 
-            // Handle events from EventBus
+            // Dealing with Events coming from the EventBus
             while let Some(event) = self.event_bus.poll() {
                 println!("Received event: {:?}", event);
                 #[allow(irrefutable_let_patterns)]
@@ -51,10 +51,10 @@ impl VKawaiiEngine {
                 }
             }
 
-            // Update Scripting Engine
+            // Running the Scripting Engine updates
             self.action_executor.update();
 
-            // Main Render Loop
+            // Doing the main Render Loop
             let egui_plugin = _engine
                 .signals
                 .get_signal::<egui_plugin::EGUIPlugin>("egui")

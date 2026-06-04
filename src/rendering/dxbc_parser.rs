@@ -21,7 +21,7 @@ extern "C" {
     fn dxil_spv_converter_get_compiled_spirv(converter: *mut c_void, compiled: *mut dxil_spv_compiled_spirv) -> c_int;
 }
 
-/// Translates a raw DXBC/DXIL byte slice into SPIR-V.
+/// Translating a raw DXBC/DXIL byte Slice into SPIR-V.
 pub fn translate_dxbc_to_spirv(dxbc_bytes: &[u8]) -> Result<Vec<u8>> {
     unsafe {
         let mut blob: *mut c_void = ptr::null_mut();
@@ -52,7 +52,7 @@ pub fn translate_dxbc_to_spirv(dxbc_bytes: &[u8]) -> Result<Vec<u8>> {
 
         let res = dxil_spv_converter_get_compiled_spirv(converter, &mut compiled);
         
-        // Copy the SPIR-V data to a Rust Vec before freeing the converter
+        // Copying the SPIR-V data to a Rust Vec before Freeing the Converter
         let spirv_vec = if res == 0 && !compiled.data.is_null() && compiled.size > 0 {
             let slice = std::slice::from_raw_parts(compiled.data, compiled.size);
             Ok(slice.to_vec())

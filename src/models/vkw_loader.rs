@@ -47,7 +47,7 @@ pub struct VkwManifest {
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub avatar_config: Option<AvatarConfig>,
-    // Add more fields as we figure them out!
+    // Adding more Fields as they Come up
 }
 
 pub struct VkwModel {
@@ -56,8 +56,8 @@ pub struct VkwModel {
 }
 
 impl VkwModel {
-    /// Loads a `.vkw` file (which is a ZIP archive), parses its `manifest.json`,
-    /// and extracts the inner `model.glb` and shaders.
+    /// Loads a `.vkw` file (which is a ZIP archive), parsing its `manifest.json`,
+    /// And pulling out the inner `model.glb` and shaders.
     pub fn load<P: AsRef<Path>>(path: P) -> Result<Self> {
         let file = File::open(path).context("Failed to open .vkw file")?;
         Self::load_from_reader(file)
@@ -67,8 +67,8 @@ impl VkwModel {
         let mut archive =
             zip::ZipArchive::new(reader).context("Failed to read .vkw as ZIP archive")?;
 
-        // The manifest contains critical metadata like format versions and layout types.
-        // It must be parsed first to validate the archive before allocating heavy mesh data.
+        // Manifest holds critical Metadata like format versions and Layout types.
+        // Parsing it First to Validate the archive before allocating heavy mesh Data.
         let manifest: VkwManifest = {
             let mut manifest_file = archive
                 .by_name("manifest.json")
@@ -84,8 +84,8 @@ impl VkwModel {
             manifest.name
         );
 
-        // The raw glTF binary contains all the geometry and basic PBR materials.
-        // We load it into a contiguous byte buffer so the `gltf` crate can process it lazily.
+        // Raw Gltf binary has all the geometry and basic PBR materials.
+        // Loading it into a contiguous byte buffer so the gltf Crate can process it lazily.
         let glb_bytes = {
             let mut glb_file = archive
                 .by_name("model.glb")

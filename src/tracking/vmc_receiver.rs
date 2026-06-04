@@ -70,7 +70,7 @@ impl VmcReceiver {
                         }
                     }
                     Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock || e.kind() == std::io::ErrorKind::TimedOut => {
-                        // Timeout reached, loop around to check is_running_thread again
+                        // Timeout reached, looping around to check is_running_thread Again
                     }
                     Err(e) => {
                         eprintln!("VMC Receiver socket error: {}", e);

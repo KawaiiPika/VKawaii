@@ -2,7 +2,7 @@ use crate::scripting::node_graph::{Node, NodeGraph};
 use std::collections::{HashMap, VecDeque};
 use uuid::Uuid;
 
-/// The ActionExecutor is responsible for executing node graphs in a non-blocking manner.
+/// The ActionExecutor runs Node graphs without Blocking things.
 pub struct ActionExecutor {
     pub graph: NodeGraph,
     execution_queue: VecDeque<Uuid>,
@@ -25,7 +25,7 @@ impl ActionExecutor {
         }
     }
 
-    /// Triggers execution starting from nodes of a specific type.
+    /// Kicking off Execution Starting from nodes of a Specific type.
     pub fn trigger(&mut self, trigger_type: &str) {
         for node in &self.graph.nodes {
             if node.type_name == trigger_type {
@@ -34,7 +34,7 @@ impl ActionExecutor {
         }
     }
 
-    /// Updates the execution engine, processing one node per call to remain non-blocking.
+    /// Ticking the execution Engine, chewing through one Node per call to stay Non-blocking.
     pub fn update(&mut self) {
         if let Some(node_id) = self.execution_queue.pop_front() {
             let node = self.graph.nodes.iter().find(|n| n.id == node_id).cloned();
@@ -56,14 +56,14 @@ impl ActionExecutor {
                 println!("ActionExecutor: SetBlendshape node executed.");
             }
             "HotkeyTrigger" => {
-                // Triggers themselves don't do much when "executed"
-                // other than passing the flow.
+                // Triggers themselves don't do Much when "executed"
+                // Just Passing the flow along.
             }
             _ => {}
         }
 
-        // To maintain continuous graph execution, we must identify and enqueue
-        // any nodes connected to the outputs of the currently executing node.
+        // Keeping the Graph execution rolling by queuing up
+        // Any Nodes hooked into the outputs of the Current node.
         for output in &node.outputs {
             for conn in &self.graph.connections {
                 if conn.from_pin == output.id {
@@ -153,22 +153,22 @@ mod tests {
 
         let mut executor = ActionExecutor::new(graph);
 
-        // Trigger execution
+        // Kicking off Execution
         executor.trigger("HotkeyTrigger");
         assert_eq!(executor.execution_queue.len(), 1);
         assert_eq!(executor.execution_queue[0], trigger_node.id);
 
-        // Update 1: Execute Trigger, queue Action 1
+        // Update 1: Running Trigger, queuing Action 1
         executor.update();
         assert_eq!(executor.execution_queue.len(), 1);
         assert_eq!(executor.execution_queue[0], action_node.id);
 
-        // Update 2: Execute Action 1, queue Action 2
+        // Update 2: Running Action 1, queuing Action 2
         executor.update();
         assert_eq!(executor.execution_queue.len(), 1);
         assert_eq!(executor.execution_queue[0], second_action_node.id);
 
-        // Update 3: Execute Action 2, queue empty
+        // Update 3: Running Action 2, queue Empty
         executor.update();
         assert!(executor.execution_queue.is_empty());
     }

@@ -57,7 +57,7 @@ impl ArmatureTest {
         println!("Right Hand Bone Idx: {:?}", right_hand_idx);
         println!("---------------------------------");
 
-        // We steal the skinning data from the VrmModel so we can own it
+        // Stealing the Skinning data from the VrmModel to Take ownership of it
         let mut skinning_data = Vec::new();
         std::mem::swap(&mut skinning_data, &mut vrm.skinning_data);
 
@@ -211,17 +211,17 @@ impl Signal for ArmatureTest {
         }
 
         // --- 2. Compute Global Transforms ---
-        // Clone root nodes to avoid borrow checker issues
+        // Cloning root Nodes to Avoid borrow Checker issues
         let roots = self.root_nodes.clone();
         self.skinning_system.update_global_transforms(&roots);
 
         // --- 3. Physics / Spring Bones ---
-        // The spring bones require parent global matrices, and they will update
-        // their own local and global matrices based on physics.
+        // The Spring bones need Parent global Matrices, and they'll update
+        // Their own Local and global Matrices Based on Physics.
         self.spring_bone_system
             .step(0.016, &mut self.skinning_system.nodes);
 
-        // Update global transforms AGAIN because physics modified locals
+        // Updating global Transforms AGAIN because Physics modified Locals
         self.skinning_system.update_global_transforms(&roots);
 
         // --- 4. CPU Skinning & GPU Upload ---
@@ -233,8 +233,8 @@ impl Signal for ArmatureTest {
                 &data.weights,
             );
 
-            // CPU skinning is still required to animate Face/Body, but we no longer
-            // feed it into physics mesh_colliders since that was removed.
+            // Cpu skinning is still Needed to animate Face/Body, but no longer
+            // Feeding it into Physics mesh_colliders since that was Removed.
 
             crate::rendering::skinning::SkinningSystem::upload_to_gpu(
                 engine,
@@ -256,7 +256,7 @@ impl Signal for ArmatureTest {
         }
         self.m_pressed = m_down;
 
-        // Handle 3D Mouse Picking
+        // Handling 3D Mouse picking
         if engine
             .simple_input
             .mouse_pressed(blue_engine::MouseButton::Left)
@@ -276,7 +276,7 @@ impl Signal for ArmatureTest {
                 let phys_mouse_y = logical_mouse_y * scale_factor;
 
                 if phys_mouse_x < w * 0.75 {
-                    // Ignore if clicking on UI area
+                    // Ignoring if Clicking on the UI area
                     let ndc_x = (2.0 * phys_mouse_x) / w - 1.0;
                     let ndc_y = 1.0 - (2.0 * phys_mouse_y) / h;
 
@@ -314,7 +314,7 @@ impl Signal for ArmatureTest {
                                     + (screen_y - phys_mouse_y).powi(2))
                                 .sqrt();
 
-                                // Since spheres project to circles, we use a larger 2D threshold (40px)
+                                // Since Spheres project to Circles, using a larger 2D Threshold (40px)
                                 if dist < 40.0 && ndc_pt.z < closest_depth {
                                     closest_depth = ndc_pt.z;
                                     let state = crate::ui::overlay::OVERLAY_STATE.lock().unwrap();
@@ -354,7 +354,7 @@ impl Signal for ArmatureTest {
                                 }
                             }
 
-                            // Hitbox radius: 30 pixels!
+                            // Hitbox radius: 30 Pixels
                             if min_dist < 30.0 && min_depth < closest_depth {
                                 closest_depth = min_depth;
                                 let node_name = self.skinning_system.nodes[*node_idx]
@@ -394,7 +394,7 @@ impl Signal for ArmatureTest {
                                 }
                             }
 
-                            // Hitbox radius: 30 pixels!
+                            // Hitbox radius: 30 pixels
                             if min_dist < 30.0 && min_depth < closest_depth {
                                 closest_depth = min_depth;
                                 let node_name = self.skinning_system.nodes[*node_idx]
@@ -462,8 +462,8 @@ impl Signal for ArmatureTest {
                     object.rotation_quaternion = blue_engine::Quaternion::IDENTITY;
                     object.scale_matrix = blue_engine::Matrix4::IDENTITY;
 
-                    // PERFORMANCE FIX: blue_engine recreates the entire vertex buffer if changed == true!
-                    // We bypass this by manually updating ONLY the uniform buffer and unflagging it.
+                    // Performance FIX: blue_engine recreates the entire vertex Buffer if changed == true
+                    // Bypassing this by Manually updating ONLY the uniform Buffer and unflagging it.
                     object.flag_as_changed(false);
                     object.update_uniform_buffer(&mut engine.renderer);
                 }

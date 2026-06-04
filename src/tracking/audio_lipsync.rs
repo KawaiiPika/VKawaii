@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex};
 
 pub struct AudioLipSync {
     pub current_volume: Arc<Mutex<f32>>,
-    // We hold the stream so it doesn't get dropped
+    // Holding the Stream so it doesn't get Dropped
     _stream: Option<cpal::Stream>,
 }
 
@@ -36,7 +36,7 @@ impl AudioLipSync {
                 let rms = (sum / data.len() as f32).sqrt();
 
                 if let Ok(mut vol) = volume_clone.lock() {
-                    // Smooth the volume or map it to a [0.0, 1.0] range for jaw opening
+                    // Smoothing the Volume or mapping it to a [0.0, 1.0] Range for jaw Opening
                     *vol = rms.min(1.0);
                 }
             },
@@ -50,10 +50,10 @@ impl AudioLipSync {
         Ok(())
     }
 
-    /// Get the current mapped mouth opening value (0.0 to 1.0)
+    /// Getting the Current mapped mouth Opening value (0.0 to 1.0)
     pub fn get_mouth_open(&self) -> f32 {
         if let Ok(vol) = self.current_volume.lock() {
-            // Apply some multiplier so speaking softly still opens the mouth
+            // Applying some Multiplier so Speaking softly still Opens the mouth
             (*vol * 5.0).min(1.0)
         } else {
             0.0

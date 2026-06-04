@@ -23,7 +23,7 @@ pub struct SkinningData {
 }
 
 impl VrmModel {
-    /// Loads a VRM (or GLB) file and parses the base glTF data
+    /// Loading a VRM (or GLB) file and parsing the base Gltf data
     pub fn load(path: &str) -> Result<Self> {
         println!("Loading VRM/{}...", path);
         let (document, buffers, images) = gltf::import(path)?;
@@ -135,9 +135,9 @@ impl VrmModel {
         })
     }
 
-    /// Spawns the loaded meshes into the Blue Engine and returns SkinningData if any
+    /// Spawning the Loaded meshes into the Blue Engine and returning SkinningData if any
     pub fn spawn_into_engine(&mut self, engine: &mut Engine) -> Result<()> {
-        // Build a dummy uniform to get the correct layout (Transform + Color) for group 2
+        // Building a dummy Uniform to grab the correct layout (Transform + Color) for Group 2
         let dummy_uniform = engine.renderer.build_uniform_buffer(&[
             engine
                 .renderer
@@ -314,7 +314,7 @@ impl VrmModel {
 
                     object.pipeline.shader = blue_engine::PipelineData::Data(custom_shader.clone());
 
-                    // PREVENT BLUE_ENGINE FROM OVERWRITING THE SHADER ON UPDATE:
+                    // Prevent BLUE_ENGINE FROM Overwriting THE SHADER ON UPDATE:
                     object.shader_builder.shader = shader_source.clone();
 
                     let pbr = material.pbr_metallic_roughness();

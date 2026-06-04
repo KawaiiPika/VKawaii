@@ -42,7 +42,7 @@ fn vs_main(input: VertexInput, instance: InstanceInput) -> VertexOutput {
     var out: VertexOutput;
     out.texture_coordinates = input.texture_coordinates;
     
-    // Pass normal to fragment shader (Assuming uniform scale for simplicity)
+    // Passing normal to the Fragment shader (Assuming uniform Scale for Simplicity)
     let world_normal = (model_matrix * vec4<f32>(input.normal, 0.0)).xyz;
     out.normal = normalize(world_normal);
 
@@ -70,27 +70,27 @@ fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
         tex_color = tex_color * fragment_uniforms.color;
     }
     
-    // Hardcoded Light Direction pointing from top-left-front
+    // Hardcoded light Direction pointing from Top-left-front
     let light_dir = normalize(vec3<f32>(-1.0, 0.5, 1.0));
     
-    // Half-Lambert reflectance (MToon standard maps -1..1 to 0..1 before shifting)
+    // Half-Lambert reflectance (MToon standard maps -1..1 to 0..1 before Shifting)
     let n_dot_l = dot(normalize(input.normal), light_dir);
     let half_lambert = n_dot_l * 0.5 + 0.5;
     
-    // Apply shading shift
+    // Applying the Shading shift
     let shading = half_lambert + SHADING_SHIFT;
     
-    // Use a very tight smoothstep for a perfectly flat, hard-edged cel shading look
-    // The tiny 0.01 width provides just enough anti-aliasing to prevent jagged edges
+    // Using a super tight Smoothstep for a perfectly Flat, hard-edged cel Shading look
+    // The tiny 0.01 Width provides just enough Anti-aliasing to prevent Jagged edges
     let lit_factor = smoothstep(-0.01, 0.01, shading);
     
-    // Artificially darken the shade color so shadows are much more visible
+    // Artificially darkening the Shade color so Shadows are much more Visible
     let dark_shade = SHADE_COLOR.rgb * 0.4;
     
-    // Mix the base texture color and the shade color
+    // Mixing the base Texture color and the Shade color
     var final_color_rgb = mix(dark_shade * tex_color.rgb, tex_color.rgb, lit_factor);
     
-    // Add MToon emission color
+    // Add on the MToon emission Color
     final_color_rgb = final_color_rgb + EMISSION_COLOR.rgb;
     
     return vec4<f32>(final_color_rgb, tex_color.a);
