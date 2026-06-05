@@ -56,8 +56,8 @@ pub struct VkwModel {
 }
 
 impl VkwModel {
-    /// Loads a `.vkw` file (which is a ZIP archive), parsing its `manifest.json`,
-    /// And pulling out the inner `model.glb` and shaders.
+    /// Loads a `.vkw` File (which is a ZIP archive), parsing its `manifest.json`,
+    /// And Pulling out the inner `model.glb` and shaders.
     pub fn load<P: AsRef<Path>>(path: P) -> Result<Self> {
         let file = File::open(path).context("Failed to open .vkw file")?;
         Self::load_from_reader(file)
@@ -67,8 +67,8 @@ impl VkwModel {
         let mut archive =
             zip::ZipArchive::new(reader).context("Failed to read .vkw as ZIP archive")?;
 
-        // Manifest holds critical Metadata like format versions and Layout types.
-        // Parsing it First to Validate the archive before allocating heavy mesh Data.
+        // Manifest holds Critical Metadata Like Format versions and Layout types.
+        // Parsing it First to Validate the Archive Before Allocating heavy mesh Data.
         let manifest: VkwManifest = {
             let mut manifest_file = archive
                 .by_name("manifest.json")
@@ -84,8 +84,8 @@ impl VkwModel {
             manifest.name
         );
 
-        // Raw Gltf binary has all the geometry and basic PBR materials.
-        // Loading it into a contiguous byte buffer so the gltf Crate can process it lazily.
+        // Raw Gltf Binary has all the Geometry and basic PBR materials.
+        // Loading it into a Contiguous byte buffer so the gltf Crate can Process it lazily.
         let glb_bytes = {
             let mut glb_file = archive
                 .by_name("model.glb")

@@ -3,6 +3,7 @@ use std::sync::mpsc::{self, Receiver, Sender};
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
     Hotkey(u32),
+    WebSocketMessage(String),
     // Sticking Future events here
 }
 

@@ -1,3 +1,4 @@
+use crate::scripting::node_graph::NodeGraph;
 use blue_engine_utilities::egui_plugin::egui;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
@@ -37,6 +38,7 @@ pub struct SpringColliderConfig {
 pub struct OverlayState {
     pub show_spring_bone_editor: bool,
     pub show_material_editor: bool,
+    pub show_node_editor: bool,
 
     // Visibility toggles
     pub show_body_hulls: bool,
@@ -56,6 +58,10 @@ pub struct OverlayState {
     pub scroll_requested: bool,
     pub mouse_pos: (f32, f32),
     pub ui_wants_pointer: bool,
+
+    // Node Editor Dragging State
+    pub drag_start_pin: Option<uuid::Uuid>,
+    pub pin_positions: std::collections::HashMap<uuid::Uuid, egui::Rect>,
 }
 
 impl Default for OverlayState {
@@ -63,6 +69,7 @@ impl Default for OverlayState {
         Self {
             show_spring_bone_editor: true,
             show_material_editor: false,
+            show_node_editor: false,
             show_body_hulls: true,
             show_spring_bone_hulls: true,
             show_spring_colliders: true,
@@ -79,6 +86,8 @@ impl Default for OverlayState {
             scroll_requested: false,
             mouse_pos: (0.0, 0.0),
             ui_wants_pointer: false,
+            drag_start_pin: None,
+            pin_positions: std::collections::HashMap::new(),
         }
     }
 }
@@ -88,7 +97,7 @@ lazy_static! {
         Arc::new(Mutex::new(OverlayState::default()));
 }
 
-pub fn draw_ui(ctx: &egui::Context) {
+pub fn draw_ui(ctx: &egui::Context, graph: &mut NodeGraph) {
     let mut state = OVERLAY_STATE.lock().unwrap();
 
     if let Some(pos) = ctx.input(|i| i.pointer.latest_pos()) {
@@ -102,6 +111,7 @@ pub fn draw_ui(ctx: &egui::Context) {
         ui.separator();
 
         ui.checkbox(&mut state.show_spring_bone_editor, "Spring Bone Editor");
+        ui.checkbox(&mut state.show_node_editor, "Node Editor");
     });
 
     if state.show_spring_bone_editor {
@@ -398,5 +408,9 @@ pub fn draw_ui(ctx: &egui::Context) {
                 state.trigger_rebuild = true;
             }
         });
+    }
+
+    if state.show_node_editor {
+        crate::ui::node_editor::draw_node_editor(ctx, graph);
     }
 }

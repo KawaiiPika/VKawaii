@@ -36,7 +36,7 @@ impl AudioLipSync {
                 let rms = (sum / data.len() as f32).sqrt();
 
                 if let Ok(mut vol) = volume_clone.lock() {
-                    // Smoothing the Volume or mapping it to a [0.0, 1.0] Range for jaw Opening
+                    // Smoothing the Volume or Mapping it to a [0.0, 1.0] Range for jaw Opening
                     *vol = rms.min(1.0);
                 }
             },
@@ -50,10 +50,10 @@ impl AudioLipSync {
         Ok(())
     }
 
-    /// Getting the Current mapped mouth Opening value (0.0 to 1.0)
+    /// Getting the Current Mapped mouth Opening Value (0.0 to 1.0)
     pub fn get_mouth_open(&self) -> f32 {
         if let Ok(vol) = self.current_volume.lock() {
-            // Applying some Multiplier so Speaking softly still Opens the mouth
+            // Applying Some Multiplier so Speaking Softly still Opens the mouth
             (*vol * 5.0).min(1.0)
         } else {
             0.0

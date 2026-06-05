@@ -32,7 +32,7 @@ impl SkinningSystem {
         }
     }
 
-    /// Updating global Transforms by Walking the Node hierarchy
+    /// Updating Global Transforms by Walking the Node Hierarchy
     pub fn update_global_transforms(&mut self, root_nodes: &[usize]) {
         for &root in root_nodes {
             self.update_node_global(root, Matrix4::identity());
@@ -47,14 +47,14 @@ impl SkinningSystem {
         let global = parent_global * self.nodes[node_idx].local_transform;
         self.nodes[node_idx].global_transform = global;
 
-        // Cloning Children to Avoid borrowing Self while Mutating
+        // Cloning Children to Avoid Borrowing Self While Mutating
         let children = self.nodes[node_idx].children.clone();
         for child in children {
             self.update_node_global(child, global);
         }
     }
 
-    /// Computing joint Matrices for a specific Skin
+    /// Computing Joint Matrices for a specific Skin
     pub fn compute_joint_matrices(&self, skin_idx: usize) -> Vec<Matrix4<f32>> {
         let skin = &self.skins[skin_idx];
         let mut joint_matrices = Vec::with_capacity(skin.joints.len());
@@ -68,7 +68,7 @@ impl SkinningSystem {
         joint_matrices
     }
 
-    /// Updating vertices using CPU skinning
+    /// Updating Vertices Using CPU skinning
     pub fn skin_vertices(
         &self,
         skin_idx: usize,
@@ -125,11 +125,11 @@ impl SkinningSystem {
         skinned_vertices
     }
 
-    /// Uploading skinned Vertices back to the blue_engine Object buffer
+    /// Uploading skinned Vertices Back to the blue_engine Object buffer
     pub fn upload_to_gpu(engine: &mut Engine, mesh_name: &str, skinned_vertices: Vec<Vertex>) {
         if let Some(object) = engine.objects.get_mut(mesh_name) {
             object.vertices = skinned_vertices;
-            // Easiest way in 0.10.0: just Rebuild the vertex Buffer on the GPU
+            // Easiest way in 0.10.0: just Rebuild the Vertex Buffer on the GPU
             let new_vb = engine
                 .renderer
                 .build_vertex_buffer(&object.vertices, &object.indices);

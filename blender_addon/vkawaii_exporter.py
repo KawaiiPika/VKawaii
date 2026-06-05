@@ -47,8 +47,8 @@ class VKawaiiExportAll(bpy.types.Operator):
     bl_label = "Export to VKawaii"
 
     def execute(self, context):
-        # Grabbing the Spring bones from the Blender armature by Hand
-        # So the physics Engine can Rebuild the node graph later.
+        # Grabbing the Spring Bones from the Blender armature by Hand
+        # So the physics Engine can Rebuild the Node graph later.
         spring_bones = []
         constraints = []
         for obj in bpy.context.scene.objects:
@@ -74,8 +74,8 @@ class VKawaiiExportAll(bpy.types.Operator):
                                 c_data["subtarget"] = c.subtarget
                             constraints.append(c_data)
 
-        # Look for Shape Keys that are Driven by Bone rotations.
-        # This makes stuff like eye Blinking or mouth Movement happen automatically
+        # Look for Shape Keys That are Driven by Bone rotations.
+        # This makes stuff like eye Blinking or mouth Movement happen Automatically
         # Based on how the Bones are posed.
         blendshape_drivers = []
         for obj in bpy.context.scene.objects:
@@ -113,8 +113,8 @@ class VKawaiiExportAll(bpy.types.Operator):
                                             "coefficient": coefficient
                                         })
 
-        # The Manifest makes sure the engine knows what to do with the assets,
-        # Ensuring the .glb and Physics Data match up.
+        # The Manifest makes sure the engine knows what to do With the assets,
+        # Ensuring the .glb and Physics Data Match up.
         temp_dir = bpy.path.abspath("//")
         if not temp_dir:
             temp_dir = bpy.app.tempdir
@@ -133,8 +133,8 @@ class VKawaiiExportAll(bpy.types.Operator):
                 "spring_bones": spring_bones
             }, f, indent=4)
 
-        # Just using Blender's built-in GLB exporter Since it handles baking PBR nodes
-        # Into standard glTF materials that the WGPU renderer can Understand.
+        # Just using Blender's built-in GLB Exporter Since it handles baking PBR nodes
+        # Into standard glTF materials that the WGPU Renderer can Understand.
         gltf_path = os.path.join(temp_dir, "model.glb")
         bpy.ops.export_scene.gltf(filepath=gltf_path, export_format='GLB')
 
@@ -149,7 +149,7 @@ class VKawaiiExportAll(bpy.types.Operator):
             zipf.write(json_path, "manifest.json")
             zipf.write(gltf_path, "model.glb")
             
-        # Cleaning up the Temp files so they don't clutter the Project folder.
+        # Cleaning up the Temp files so They don't clutter the Project folder.
         if os.path.exists(json_path):
             os.remove(json_path)
         if os.path.exists(gltf_path):

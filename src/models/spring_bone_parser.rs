@@ -268,7 +268,7 @@ fn add_spring_bone_recursive(
         (!enabled, config)
     };
 
-    // Using a Capsule for the bone physics Hull instead of Generating a massive blob from all vertices
+    // Using a Capsule for the bone Physics Hull instead of Generating a massive Blob From all vertices
     if !exclude_from_mesh_collision {
         let mut hull_points = Vec::new();
 
@@ -304,7 +304,7 @@ fn add_spring_bone_recursive(
                         pt.y *= hull_config.y_squash;
                         pt.z *= hull_config.z_squash;
 
-                        // Strict Distance filter to prevent large overlapping blobs
+                        // Strict Distance filter to prevent Large overlapping blobs
                         let t = if ab_len_sq > 0.000001 {
                             ((pt - p_start).dot(ab) / ab_len_sq).clamp(0.0, 1.0)
                         } else {
@@ -317,11 +317,11 @@ fn add_spring_bone_recursive(
 
                         let dist = pt.distance(closest);
 
-                        // Tossing out Points that project near the bone Root (t < 0.30) to Stop
-                        // The hull base From digging into the scalp/head and Pushing the
-                        // Hair straight out.
+                        // Tossing out Points That Project near the bone Root (t < 0.30) to Stop
+                        // The Hull Base From digging into the scalp/head and Pushing the
+                        // Hair Straight out.
                         // Going with a Slightly expanded radius (local_hit_radius + 0.005 / scale) to Close
-                        // Inter-bone gaps, but Bounded to dodge huge blobs on Small hairs.
+                        // Inter-bone gaps, but Bounded to Dodge huge blobs on Small hairs.
                         if dist
                             <= (local_hit_radius + 0.005 / global_scale).min(0.02 / global_scale)
                             && t > 0.30
@@ -333,8 +333,8 @@ fn add_spring_bone_recursive(
             }
         }
 
-        // If not enough Points are found from skinning, Generate synthetic points along the bone
-        // So it still gets a convex hull That respects the squash/shrink UI settings
+        // If not enough Points are found from skinning, Generate Synthetic points along the bone
+        // So it still Gets a Convex hull That respects the squash/shrink UI Settings
         if hull_points.len() < 4 {
             let cap_end = if ab_len_sq > 0.000001 {
                 p_end
@@ -346,7 +346,7 @@ fn add_spring_bone_recursive(
             } else {
                 0.003 / global_scale
             };
-            // Going with a tiny radius (max 5mm) to Stop massive blocky Geometry at the ends of Hairs.
+            // Going With a tiny radius (max 5mm) to Stop Massive blocky Geometry at the ends of Hairs.
             let radius = local_hit_radius.min(0.005 / global_scale).max(fallback_r);
             let dir = if ab_len_sq > 0.000001 {
                 ab.normalize()
@@ -389,7 +389,7 @@ fn add_spring_bone_recursive(
         }
 
         if hull_points.len() >= 4 {
-            // Minimum points for a 3D convex hull
+            // Minimum points for a 3D convex Hull
             if let Some(shape) = rapier3d::prelude::SharedShape::convex_hull(&hull_points) {
                 println!(
                     "Generated Physics Hull for Node {} with {} points!",
@@ -467,16 +467,16 @@ fn add_spring_bone_recursive(
     }
 }
 
-/// Building convex hull Colliders for the body bones (head, neck, chest, arms, hands, etc.)
-/// Storing these in `system.body_hull_colliders` and using them in Pass 1.5 so the spring-bone Hair
-/// Clashes with the actual body Mesh geometry instead of just the VRM metadata.
+/// Building convex hull Colliders for the body Bones (head, neck, chest, arms, hands, etc.)
+/// Storing These in `system.body_hull_colliders` and using them in Pass 1.5 so the spring-bone Hair
+/// Clashes With the Actual Body Mesh Geometry instead of Just the VRM metadata.
 pub fn build_body_hull_colliders(
     nodes: &[crate::rendering::skinning::Node],
     skins: &[crate::rendering::skinning::Skin],
     skinning_data: &[crate::models::vrm_loader::SkinningData],
     system: &mut SpringBoneSystem,
 ) {
-    // Bone names to Generate body Hulls for.
+    // Bone Names to Generate body Hulls for.
     // These are the Bones the Hair tends to Clip through.
     let target_name_fragments: &[&str] = &[
         "head",
@@ -533,7 +533,7 @@ pub fn build_body_hull_colliders(
         }
 
         // For the head bone there are 425k+ points - uniformly subsample to 2000 so the
-        // Convex hull covers the FULL head shape (face + scalp + top) without crashing.
+        // Convex hull covers the Full head shape (face + scalp + top) Without crashing.
         if is_head && hull_points.len() > 2000 {
             let stride = hull_points.len() / 2000;
             hull_points = hull_points.into_iter().step_by(stride.max(1)).collect();
@@ -559,8 +559,8 @@ pub fn build_body_hull_colliders(
             }
         }
 
-        // Shrinking hull points Toward their centroid so the collision Surface sits
-        // Slightly inside the Mesh, leaving Hair room to Rest on top Without being pushed out.
+        // Shrinking Hull points Toward their Centroid so the collision Surface sits
+        // Slightly inside the Mesh, leaving Hair Room to Rest on top Without being pushed out.
         let centroid = hull_points
             .iter()
             .fold(blue_engine::glam::Vec3::ZERO, |a, &b| a + b)
@@ -583,8 +583,8 @@ pub fn build_body_hull_colliders(
             continue;
         }
 
-        // Special case: the head bone influences Enormous numbers of vertices.
-        // Sampled up to 2000 points and shrank them — now Build a Normal Convex hull from that.
+        // Special case: the head Bone Influences Enormous numbers of vertices.
+        // Sampled up to 2000 points and Shrank Them — now Build a Normal Convex hull from that.
         match rapier3d::prelude::SharedShape::convex_hull(&hull_points) {
             Some(shape) => {
                 println!(

@@ -2,7 +2,7 @@ use crate::scripting::node_graph::{Node, NodeGraph};
 use std::collections::{HashMap, VecDeque};
 use uuid::Uuid;
 
-/// The ActionExecutor runs Node graphs without Blocking things.
+/// The Actionexecutor Runs Node Graphs Without Blocking things.
 pub struct ActionExecutor {
     pub graph: NodeGraph,
     execution_queue: VecDeque<Uuid>,
@@ -34,7 +34,7 @@ impl ActionExecutor {
         }
     }
 
-    /// Ticking the execution Engine, chewing through one Node per call to stay Non-blocking.
+    /// Ticking the execution Engine, Chewing Through one Node per Call to stay Non-blocking.
     pub fn update(&mut self) {
         if let Some(node_id) = self.execution_queue.pop_front() {
             let node = self.graph.nodes.iter().find(|n| n.id == node_id).cloned();
@@ -56,14 +56,14 @@ impl ActionExecutor {
                 println!("ActionExecutor: SetBlendshape node executed.");
             }
             "HotkeyTrigger" => {
-                // Triggers themselves don't do Much when "executed"
+                // Triggers themselves don't do Much When "executed"
                 // Just Passing the flow along.
             }
             _ => {}
         }
 
-        // Keeping the Graph execution rolling by queuing up
-        // Any Nodes hooked into the outputs of the Current node.
+        // Keeping the Graph Execution rolling by Queuing up
+        // Any Nodes Hooked Into the outputs of the Current node.
         for output in &node.outputs {
             for conn in &self.graph.connections {
                 if conn.from_pin == output.id {
@@ -163,7 +163,7 @@ mod tests {
         assert_eq!(executor.execution_queue.len(), 1);
         assert_eq!(executor.execution_queue[0], action_node.id);
 
-        // Update 2: Running Action 1, queuing Action 2
+        // Update 2: Running Action 1, Queuing Action 2
         executor.update();
         assert_eq!(executor.execution_queue.len(), 1);
         assert_eq!(executor.execution_queue[0], second_action_node.id);

@@ -1,0 +1,12 @@
+name: Jules Invoke
+on:
+  issues:
+    types: [labeled]
+jobs:
+  invoke:
+    if: github.event.label.name == 'jules'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-labs-code/jules-action@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

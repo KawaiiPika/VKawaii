@@ -9,7 +9,7 @@ pub struct ArmatureTest {
     pub root_nodes: Vec<usize>,
     pub time: f32,
 
-    // Cached bone indices
+    // Cached bone Indices
     pub head_idx: Option<usize>,
     pub chest_idx: Option<usize>,
     pub left_hand_idx: Option<usize>,
@@ -57,7 +57,7 @@ impl ArmatureTest {
         println!("Right Hand Bone Idx: {:?}", right_hand_idx);
         println!("---------------------------------");
 
-        // Stealing the Skinning data from the VrmModel to Take ownership of it
+        // Stealing the Skinning data from the VrmModel to Take Ownership of it
         let mut skinning_data = Vec::new();
         std::mem::swap(&mut skinning_data, &mut vrm.skinning_data);
 
@@ -211,12 +211,12 @@ impl Signal for ArmatureTest {
         }
 
         // --- 2. Compute Global Transforms ---
-        // Cloning root Nodes to Avoid borrow Checker issues
+        // Cloning root Nodes to Avoid Borrow Checker Issues
         let roots = self.root_nodes.clone();
         self.skinning_system.update_global_transforms(&roots);
 
         // --- 3. Physics / Spring Bones ---
-        // The Spring bones need Parent global Matrices, and they'll update
+        // The Spring Bones need Parent Global Matrices, and they'll update
         // Their own Local and global Matrices Based on Physics.
         self.spring_bone_system
             .step(0.016, &mut self.skinning_system.nodes);
@@ -276,7 +276,7 @@ impl Signal for ArmatureTest {
                 let phys_mouse_y = logical_mouse_y * scale_factor;
 
                 if phys_mouse_x < w * 0.75 {
-                    // Ignoring if Clicking on the UI area
+                    // Ignoring if Clicking on the UI Area
                     let ndc_x = (2.0 * phys_mouse_x) / w - 1.0;
                     let ndc_y = 1.0 - (2.0 * phys_mouse_y) / h;
 
@@ -462,8 +462,8 @@ impl Signal for ArmatureTest {
                     object.rotation_quaternion = blue_engine::Quaternion::IDENTITY;
                     object.scale_matrix = blue_engine::Matrix4::IDENTITY;
 
-                    // Performance FIX: blue_engine recreates the entire vertex Buffer if changed == true
-                    // Bypassing this by Manually updating ONLY the uniform Buffer and unflagging it.
+                    // Performance FIX: blue_engine recreates the Entire Vertex Buffer if changed == true
+                    // Bypassing This by Manually updating ONLY the uniform Buffer and unflagging it.
                     object.flag_as_changed(false);
                     object.update_uniform_buffer(&mut engine.renderer);
                 }

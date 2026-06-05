@@ -3,8 +3,8 @@ use nalgebra::UnitQuaternion;
 
 /// Stub for MediaPipe webcam Tracking.
 /// In a Real implementation, spinning up a Python sub-process
-/// Using the mediapipe Package and reading its stdout via IPC,
-/// Or using OpenCV + a Rust wrapper for MediaPipe C++ graphs.
+/// Using the Mediapipe Package and Reading its Stdout via IPC,
+/// Or Using OpenCV + a Rust wrapper for MediaPipe C++ graphs.
 pub struct MediaPipeTracker {
     pub head_rotation: UnitQuaternion<f32>,
     pub left_eye_blink: f32,
@@ -33,15 +33,15 @@ impl MediaPipeTracker {
 
     /// Starting the webcam Stream and beginning Tracking
     pub fn start(&mut self) -> Result<()> {
-        // Initializing the Webcam here (like via opencv::videoio::VideoCapture)
-        // And Spawning a Background thread to Process frames through MediaPipe Face mesh.
+        // Initializing the Webcam Here (like via opencv::videoio::VideoCapture)
+        // And Spawning a Background Thread to Process frames through MediaPipe Face mesh.
 
         self._is_running = true;
         println!("MediaPipe tracker started (Stub).");
         Ok(())
     }
 
-    /// Calling this per Frame to Fetch the Latest tracking Data From the background Thread
+    /// Calling This per Frame to Fetch the Latest tracking Data From the Background Thread
     pub fn update(&mut self) {
         if !self._is_running {}
 

@@ -10,10 +10,9 @@ license = "GPL-3.0-or-later"
 name = "vkawaii"
 path = "src/main.rs"
 
-
-
 [dependencies]
 blue_engine = "0.10.0"
+wgpu = { version = "27.0.1", features = ["wgpu-core"] }
 rapier3d = "0.32.0"
 gltf = "1.1.0"
 cpal = "0.17.3"
@@ -34,11 +33,16 @@ naga = { version = "29.0.3", features = ["spv-in", "wgsl-out"] }
 uuid = { version = "1", features = ["serde", "v4"] }
 rosc = "0.11"
 crossbeam-channel = "0.5.14"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time"] }
+tokio-tungstenite = "0.26"
+futures-util = "0.3"
+
+[target.'cfg(windows)'.dependencies]
+libloading = "0.8"
+wgpu-hal = { version = "27.0.4", features = ["dx12", "gles"] }
+windows = { version = "0.58", features = ["Win32_Graphics_Direct3D12", "Win32_Graphics_Direct3D11", "Win32_Graphics_Dxgi", "Win32_Foundation"] }
 
 [workspace]
 
 [build-dependencies]
 cmake = "0.1.58"
-
-
-

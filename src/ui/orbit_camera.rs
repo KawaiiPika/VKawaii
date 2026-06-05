@@ -1,7 +1,7 @@
 use blue_engine::{Engine, Vector3};
 
 pub struct OrbitCamera {
-    // Target parameters (driven by input)
+    // Target Parameters (driven by input)
     pub target_radius: f32,
     pub target_theta: f32,
     pub target_phi: f32,
@@ -65,13 +65,13 @@ impl blue_engine::Signal for OrbitCamera {
 
         let mut input_active = false;
 
-        // Map scroll wheel input to Exponential Zoom to maintain smooth scaling at large Distances
+        // Map scroll wheel Input to Exponential Zoom to maintain smooth scaling at Large Distances
         let ui_wants_pointer = crate::ui::overlay::OVERLAY_STATE
             .lock()
             .unwrap()
             .ui_wants_pointer;
         if scroll_y != 0.0 && !ui_wants_pointer {
-            // Scale zoom Speed based on Proximity to the target
+            // Scale zoom Speed based on Proximity to the Target
             let zoom_amt = scroll_y * self.zoom_speed * (self.target_radius * 0.1).max(0.1);
             self.target_radius = (self.target_radius - zoom_amt).clamp(0.1, 50.0);
             input_active = true;
@@ -98,7 +98,7 @@ impl blue_engine::Signal for OrbitCamera {
             self.target_theta += mouse_dx * self.rotation_speed;
             self.target_phi -= mouse_dy * self.rotation_speed;
 
-            // Constrain pitch to Prevent gimbal lock at the poles
+            // Constrain Pitch to Prevent gimbal lock at the poles
             let epsilon = 0.01;
             self.target_phi = self
                 .target_phi
@@ -108,7 +108,7 @@ impl blue_engine::Signal for OrbitCamera {
 
         // Camera Pan
         if is_panning && (mouse_dx != 0.0 || mouse_dy != 0.0) {
-            // Project the 2D mouse delta onto the 3D viewing plane to allow intuitive panning
+            // Project the 2D mouse Delta onto the 3D viewing plane to allow Intuitive panning
             let forward = Vector3::new(
                 self.current_phi.sin() * self.current_theta.cos(),
                 self.current_phi.cos(),
@@ -133,7 +133,7 @@ impl blue_engine::Signal for OrbitCamera {
         let diff_phi = (self.target_phi - self.current_phi).abs();
         let diff_focus = (self.target_focus - self.current_focus).length();
 
-        // Only update if there's a meaningful difference
+        // Only update if there's a meaningful Difference
         if input_active
             || diff_radius > 0.001
             || diff_theta > 0.001

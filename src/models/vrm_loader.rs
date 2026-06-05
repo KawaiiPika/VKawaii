@@ -23,7 +23,7 @@ pub struct SkinningData {
 }
 
 impl VrmModel {
-    /// Loading a VRM (or GLB) file and parsing the base Gltf data
+    /// Loading a VRM (or GLB) file and parsing the base Gltf Data
     pub fn load(path: &str) -> Result<Self> {
         println!("Loading VRM/{}...", path);
         let (document, buffers, images) = gltf::import(path)?;
@@ -135,9 +135,9 @@ impl VrmModel {
         })
     }
 
-    /// Spawning the Loaded meshes into the Blue Engine and returning SkinningData if any
+    /// Spawning the Loaded meshes into the Blue Engine and Returning SkinningData if any
     pub fn spawn_into_engine(&mut self, engine: &mut Engine) -> Result<()> {
-        // Building a dummy Uniform to grab the correct layout (Transform + Color) for Group 2
+        // Building a dummy Uniform to Grab the correct layout (Transform + Color) for Group 2
         let dummy_uniform = engine.renderer.build_uniform_buffer(&[
             engine
                 .renderer

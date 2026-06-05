@@ -10,6 +10,7 @@ pub mod models;
 pub mod physics;
 pub mod rendering;
 pub mod scripting;
+pub mod streaming;
 pub mod tracking;
 pub mod ui;
 

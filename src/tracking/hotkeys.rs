@@ -37,7 +37,7 @@ mod tests {
     #[test]
     fn test_hotkey_manager_init() {
         let (tx, _rx) = mpsc::channel();
-        // This might Fail in some CI Environments if it can't Access the windowing System
+        // This might Fail in Some CI Environments if it can't Access the windowing System
         // But Trying anyway.
         let result = HotkeyManager::new(tx);
         // Checking if the Function returns, Success or Failure Depends on the Environment

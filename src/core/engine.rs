@@ -14,7 +14,14 @@ pub struct VKawaiiEngine {
 
 impl VKawaiiEngine {
     pub fn new() -> anyhow::Result<Self> {
-        let mut engine = Engine::new()?;
+        let settings = blue_engine::EngineSettings {
+            alpha_mode: blue_engine::wgpu::CompositeAlphaMode::PreMultiplied,
+            ..Default::default()
+        };
+
+        let mut engine = Engine::new_config(settings)?;
+        engine.window.set_transparent(true);
+        engine.renderer.set_clear_color(0.0, 0.0, 0.0, 0.0);
 
         let gui_context = egui_plugin::EGUIPlugin::new();
         engine.signals.add_signal("egui", Box::new(gui_context));
@@ -23,6 +30,18 @@ impl VKawaiiEngine {
         let hotkey_manager = HotkeyManager::new(event_bus.get_sender())?;
 
         let action_executor = ActionExecutor::new(NodeGraph::default());
+
+        #[cfg(windows)]
+        if let Some(spout_sender) = crate::streaming::spout_sender::SpoutSender::new("VKawaii") {
+            engine.signals.add_signal(
+                "spout",
+                Box::new(crate::streaming::spout_sender::SpoutSignal {
+                    sender: spout_sender,
+                }),
+            );
+        }
+
+        crate::streaming::websocket_server::start_websocket_server(event_bus.get_sender());
 
         // Registering a Sample hotkey (like F1)
         use global_hotkey::hotkey::{Code, HotKey, Modifiers};
@@ -42,12 +61,16 @@ impl VKawaiiEngine {
             // Checking the Hotkeys
             self.hotkey_manager.poll();
 
-            // Dealing with Events coming from the EventBus
+            // Dealing with Events coming from the Eventbus
             while let Some(event) = self.event_bus.poll() {
                 println!("Received event: {:?}", event);
-                #[allow(irrefutable_let_patterns)]
-                if let Event::Hotkey(_id) = event {
-                    self.action_executor.trigger("HotkeyTrigger");
+                match event {
+                    Event::Hotkey(_id) => {
+                        self.action_executor.trigger("HotkeyTrigger");
+                    }
+                    Event::WebSocketMessage(msg) => {
+                        println!("WebSocket Message Received: {}", msg);
+                    }
                 }
             }
 
@@ -63,7 +86,7 @@ impl VKawaiiEngine {
 
             egui_plugin.ui(
                 |ctx| {
-                    crate::ui::overlay::draw_ui(ctx);
+                    crate::ui::overlay::draw_ui(ctx, &mut self.action_executor.graph);
                 },
                 &_engine.window,
             );
